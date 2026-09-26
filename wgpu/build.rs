@@ -9,6 +9,9 @@ fn main() {
             all(feature = "fragile-send-sync-non-atomic-wasm", not(target_feature = "atomics"))
         ) },
 
+        // The platforms with a native Vulkan and OpenGL backend: Windows, Linux, Android and FreeBSD.
+        native_vulkan_gles: { any(windows, target_os = "linux", target_os = "android", target_os = "freebsd") },
+
         // Backends - keep this in sync with `wgpu-core/Cargo.toml` & docs in `wgpu/Cargo.toml`
         webgpu: { all(not(native), not(Emscripten), feature = "webgpu") },
         webgl: { all(not(native), not(Emscripten), feature = "webgl") },
@@ -16,7 +19,7 @@ fn main() {
         metal: { all(target_vendor = "apple", feature = "metal") },
         vulkan: { any(
             // The `vulkan` feature enables the Vulkan backend only on "native Vulkan" platforms, i.e. Windows/Linux/Android
-            all(any(windows, target_os = "linux", target_os = "android", target_os = "freebsd"), feature = "vulkan"),
+            all(native_vulkan_gles, feature = "vulkan"),
             // On Apple platforms, however, we require the `vulkan-portability` feature
             // to explicitly opt-in to Vulkan since it's meant to be used with MoltenVK.
             all(target_vendor = "apple", feature = "vulkan-portability")
@@ -24,14 +27,14 @@ fn main() {
         gles: { any(
             // The `gles` feature enables the OpenGL/GLES backend only on "native OpenGL" platforms, i.e. Windows, Linux, Android, and Emscripten.
             // (Note that WebGL is also not included here!)
-            all(any(windows, target_os = "linux", target_os = "android", target_os = "freebsd", Emscripten), feature = "gles"),
+            all(any(native_vulkan_gles, Emscripten), feature = "gles"),
             // On Apple platforms, however, we require the `angle` feature to explicitly opt-in to OpenGL
             // since its meant to be used with ANGLE.
             all(target_vendor = "apple", feature = "angle")
         ) },
         noop: { feature = "noop" },
         // Whether wgpu implements any backend for the target, enabled or not.
-        target_has_backend: { any(windows, target_os = "linux", target_os = "android", target_os = "freebsd", target_vendor = "apple", target_arch = "wasm32") },
+        target_has_backend: { any(native_vulkan_gles, target_vendor = "apple", target_arch = "wasm32") },
 
         wgpu_core: {
             any(
