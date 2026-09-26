@@ -59,9 +59,11 @@ impl Instance {
     ///
     /// - If no backend feature for the active target platform is enabled,
     ///   this method will panic; see [`Instance::enabled_backend_features()`].
+    ///   On a target wgpu implements no backend for, the instance is created and
+    ///   finds no adapters instead.
     #[allow(clippy::allow_attributes, unreachable_code)]
     pub fn new(desc: &InstanceDescriptor) -> Self {
-        if Self::enabled_backend_features().is_empty() {
+        if cfg!(target_has_backend) && Self::enabled_backend_features().is_empty() {
             panic!(
                 "No wgpu backend feature that is implemented for the target platform was enabled. \
                  See `wgpu::Instance::enabled_backend_features()` for more information."
