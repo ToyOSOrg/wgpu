@@ -34,6 +34,8 @@ fn main() {
             all(target_vendor = "apple", feature = "angle")
         ) },
         noop: { feature = "noop" },
+        // Whether wgpu implements any backend for the target, enabled or not.
+        target_has_backend: { any(windows, target_os = "linux", target_os = "android", target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_vendor = "apple", target_family = "wasm") },
 
         wgpu_core: {
             any(
